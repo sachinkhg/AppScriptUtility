@@ -1,34 +1,57 @@
 let sampleCalendar = CalendarApp.getDefaultCalendar();
-let sheet = SpreadsheetApp.getActiveSheet();
+var weekSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Current Week v1.1");
+var simplifiedWeekSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Simplified");
+let beginRowForSimplifiedSheet = 1
 
-function myFunction() {
-  
-  sampleCalendar.createEvent('Sample Event',new Date('Aug 05, 2023 20:00:00 UTC'),new Date('Aug 05, 2023 20:30:00 UTC'));
-}
-
-function testCode(){
-    // //let data = sheet.getRange(2,2,19,2).getValues();
-  //   if(sheet.getRange(9,3).isPartOfMerge()){
-  //     var mergedRanges = sheet.getRange(9,3).getMergedRanges();
-  //     for (var i = 0; i < mergedRanges.length; i++) {
-  //       Logger.log(mergedRanges[i].getNumRows());
-  //       Logger.log(mergedRanges[i].getDisplayValue());
-  //     }
-  //   }
-  //convertWeekPlanTableToSimplifiedTable
-}
 //Function to convert content from Week Plan Table to simplified table.
 function convertWeekPlanTableToSimplifiedTable(){
   /*Pseudo code
     Call function readEachRowDateFromWeekPlanTable, store return value in HashMap eachRowData for loop row
     Iterate eachRowData and write in sheet TBD in simplified table format, reset eachRowDate
   */
+  let eachRowData ={};
+  let inviteMapConter =0;
+  let rowIndex =3;
+
+  simplifiedWeekSheet.clearContents();
+  while(weekSheet.getRange(rowIndex,4).getValue()!=""){
+    eachRowData = readEachRowDateFromWeekPlanTable(rowIndex)
+    let currentRowDate = weekSheet.getRange(rowIndex,4).getValue()
+                                            .concat(" ")
+                                            .concat(weekSheet.getRange(rowIndex,3).getValue())
+                                            .concat(", ")
+                                            .concat(weekSheet.getRange(rowIndex,5).getValue());
+    
+    inviteMapConter = 0;
+    while(eachRowData[currentRowDate].inviteMap[inviteMapConter]!= null){
+      simplifiedWeekSheet.getRange(beginRowForSimplifiedSheet, 1)
+                          .setValue(currentRowDate
+                                      .concat(" ")
+                                      .concat(eachRowData[currentRowDate]
+                                                .inviteMap[inviteMapConter]
+                                                .inviteDatail[0])
+                                      .concat(":00 UTC"))
+      simplifiedWeekSheet.getRange(beginRowForSimplifiedSheet, 2)
+                          .setValue(currentRowDate
+                                      .concat(" ")
+                                      .concat(eachRowData[currentRowDate]
+                                                .inviteMap[inviteMapConter]
+                                                .inviteDatail[1])
+                                      .concat(":00 UTC"))
+      simplifiedWeekSheet.getRange(beginRowForSimplifiedSheet, 3)
+                    .setValue(eachRowData[currentRowDate].inviteMap[inviteMapConter]
+                                                          .inviteDatail[2])  
+      inviteMapConter++;
+      beginRowForSimplifiedSheet++;
+    }
+    rowIndex++;
+  }
 }
 
 //Function to read Each Row Date From Week Plan Table
-function readEachRowDateFromWeekPlanTable(){
+function readEachRowDateFromWeekPlanTable(currentrow){
   /*Pseudo code 
-    Create HashMap eachRowData [rowDate(String), [inviteStartTime(String), {inviteEndTime(String), invite Info(String)}]]
+    Created HashMap eachRowData {rowDate(String), {inviteStartTime(String), [inviteEndTime(String), inviteInfo(String)]}}
     rowDate: concatenate column C, D and E in "Aug 05, 2023" Format
     inviteStartTime: If the row has value then inviteStartTime will be taken from Row 2 for current loop column
     inviteEndTime: 
@@ -37,12 +60,53 @@ function readEachRowDateFromWeekPlanTable(){
     invite Info: taken from current loop of row column for respective column
     return eachRowData
   */
+  let eachRowData = {};
+  let inviteMap = {};
+  let inviteDatail = [];
 
+  let inviteCounter = 0;
 
+  //concatenate column C, D and E in "Aug 05, 2023" Format
+  let currentRowDate = weekSheet.getRange(currentrow,4).getValue()
+                                              .concat(" ")
+                                              .concat(weekSheet.getRange(currentrow,3).getValue())
+                                              .concat(", ")
+                                              .concat(weekSheet.getRange(currentrow,5).getValue());
+
+  eachRowData[currentRowDate] = {};
+
+  for(let colIndex = 6; colIndex < 43; colIndex++){
+    let inviteInfo = weekSheet.getRange(currentrow,colIndex).getValue();
+    let isMergedColFlag = weekSheet.getRange(currentrow,colIndex).isPartOfMerge();
+    let mergedColCount = 1;
+    if(isMergedColFlag){
+      mergedRanges = weekSheet.getRange(currentrow,colIndex).getMergedRanges();
+      mergedColCount = mergedRanges[0].getNumColumns();
+    }
+
+    if(inviteInfo != ""){
+      inviteDatail = [weekSheet.getRange(1,colIndex).getValue(), weekSheet.getRange(1,colIndex + mergedColCount).getValue(), inviteInfo]
+      inviteMap[inviteCounter] = {inviteDatail}
+      eachRowData[currentRowDate] = {inviteMap};
+      inviteCounter++;
+      colIndex = colIndex + mergedColCount;
+    }
   }
+  // Logger.log(eachRowData);
+  return eachRowData
+}
 //Function to Read the and store one row from simplified table.
 //Function to create event based on one row read from simplified table.
 //Function to Loop Event creation for each row to simplified table.
-
+function EventCreation(){
+  try{
+    convertWeekPlanTableToSimplifiedTable();
+  }catch(e){};
+  let rowIndex =1;
+  while(simplifiedWeekSheet.getRange(rowIndex,1).getValue()!=""){
+    sampleCalendar.createEvent(simplifiedWeekSheet.getRange(rowIndex,3).getValue(),new Date(simplifiedWeekSheet.getRange(rowIndex,1).getValue()),new Date(simplifiedWeekSheet.getRange(rowIndex,2).getValue()));
+    rowIndex++;
+  }
+}
 
 //General Query: 1. What is difference between let and var in appscript?
