@@ -1,0 +1,48 @@
+let sampleCalendar = CalendarApp.getDefaultCalendar();
+let sheet = SpreadsheetApp.getActiveSheet();
+
+function myFunction() {
+  
+  sampleCalendar.createEvent('Sample Event',new Date('Aug 05, 2023 20:00:00 UTC'),new Date('Aug 05, 2023 20:30:00 UTC'));
+}
+
+function testCode(){
+    // //let data = sheet.getRange(2,2,19,2).getValues();
+  //   if(sheet.getRange(9,3).isPartOfMerge()){
+  //     var mergedRanges = sheet.getRange(9,3).getMergedRanges();
+  //     for (var i = 0; i < mergedRanges.length; i++) {
+  //       Logger.log(mergedRanges[i].getNumRows());
+  //       Logger.log(mergedRanges[i].getDisplayValue());
+  //     }
+  //   }
+  //convertWeekPlanTableToSimplifiedTable
+}
+//Function to convert content from Week Plan Table to simplified table.
+function convertWeekPlanTableToSimplifiedTable(){
+  /*Pseudo code
+    Call function readEachRowDateFromWeekPlanTable, store return value in HashMap eachRowData for loop row
+    Iterate eachRowData and write in sheet TBD in simplified table format, reset eachRowDate
+  */
+}
+
+//Function to read Each Row Date From Week Plan Table
+function readEachRowDateFromWeekPlanTable(){
+  /*Pseudo code 
+    Create HashMap eachRowData [rowDate(String), [inviteStartTime(String), {inviteEndTime(String), invite Info(String)}]]
+    rowDate: concatenate column C, D and E in "Aug 05, 2023" Format
+    inviteStartTime: If the row has value then inviteStartTime will be taken from Row 2 for current loop column
+    inviteEndTime: 
+      1. If the cell is not merged than inviteEndTime will be the value of current loop column + 1 of Row 2
+      2. If the cell is merged than inviteEndTime will be the value of merged cell's last column of Row 2, loop column value jumps to merged cell's last column
+    invite Info: taken from current loop of row column for respective column
+    return eachRowData
+  */
+
+
+  }
+//Function to Read the and store one row from simplified table.
+//Function to create event based on one row read from simplified table.
+//Function to Loop Event creation for each row to simplified table.
+
+
+//General Query: 1. What is difference between let and var in appscript?
