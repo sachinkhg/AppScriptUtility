@@ -30,14 +30,14 @@ function convertWeekPlanTableToSimplifiedTable(){
                                       .concat(eachRowData[currentRowDate]
                                                 .inviteMap[inviteMapConter]
                                                 .inviteDatail[0])
-                                      .concat(":00 UTC"))
+                                      .concat(":00 GMT+0530 (India Standard Time)"))
       simplifiedWeekSheet.getRange(beginRowForSimplifiedSheet, 2)
                           .setValue(currentRowDate
                                       .concat(" ")
                                       .concat(eachRowData[currentRowDate]
                                                 .inviteMap[inviteMapConter]
                                                 .inviteDatail[1])
-                                      .concat(":00 UTC"))
+                                      .concat(":00 GMT+0530 (India Standard Time)"))
       simplifiedWeekSheet.getRange(beginRowForSimplifiedSheet, 3)
                     .setValue(eachRowData[currentRowDate].inviteMap[inviteMapConter]
                                                           .inviteDatail[2])  
@@ -85,11 +85,11 @@ function readEachRowDateFromWeekPlanTable(currentrow){
     }
 
     if(inviteInfo != ""){
-      inviteDatail = [weekSheet.getRange(1,colIndex).getValue(), weekSheet.getRange(1,colIndex + mergedColCount).getValue(), inviteInfo]
+      inviteDatail = [weekSheet.getRange(2,colIndex).getValue(), weekSheet.getRange(2,colIndex + mergedColCount).getValue(), inviteInfo]
       inviteMap[inviteCounter] = {inviteDatail}
       eachRowData[currentRowDate] = {inviteMap};
       inviteCounter++;
-      colIndex = colIndex + mergedColCount;
+      colIndex = colIndex + mergedColCount - 1;
     }
   }
   // Logger.log(eachRowData);
@@ -106,6 +106,15 @@ function EventCreation(){
   while(simplifiedWeekSheet.getRange(rowIndex,1).getValue()!=""){
     sampleCalendar.createEvent(simplifiedWeekSheet.getRange(rowIndex,3).getValue(),new Date(simplifiedWeekSheet.getRange(rowIndex,1).getValue()),new Date(simplifiedWeekSheet.getRange(rowIndex,2).getValue()));
     rowIndex++;
+  }
+}
+
+function ReadEvent(){
+  sampleCalendar = CalendarApp.getOwnedCalendarsByName("Sachin Kumar - 1");
+  simplifiedWeekSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Actual");
+  var events = sampleCalendar[0].getEventsForDay(new Date("Aug 7, 2023 5:00:00 GMT+0530 (India Standard Time)"));
+  for(var eventIndex = 0; eventIndex < events.length; eventIndex++){
+    Logger.log(events[eventIndex].getTitle() + " - " + events[eventIndex].getStartTime() + " - " + events[eventIndex].getEndTime())
   }
 }
 
